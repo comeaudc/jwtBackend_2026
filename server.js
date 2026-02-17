@@ -3,6 +3,8 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./db/conn.js";
 import { logReq, globalErr } from "./middlewares/middleware.js";
+import userRoutes from "./routes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 // Setups
 dotenv.config();
@@ -15,6 +17,8 @@ app.use(express.json());
 app.use(logReq);
 
 // Routes
+app.use("/api/user", userRoutes);
+app.use("/api/auth", authRoutes);
 
 // Global Error handling
 app.use(globalErr);
