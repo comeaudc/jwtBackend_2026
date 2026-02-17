@@ -1,4 +1,4 @@
-export function logReq(req, res, next) {
+export function logReq(req, _res, next) {
   console.log(
     `${req.method} -- ${req.url} -- ${new Date().toLocaleTimeString()}`,
   );
@@ -10,6 +10,6 @@ export function logReq(req, res, next) {
   next();
 }
 
-export function globalErr(err, req, res, next){
+export function globalErr(err, _req, res, _next){
     res.status(err.status || 500).json({error: `❌ Error: ${err.message}`})
 }
