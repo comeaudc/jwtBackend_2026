@@ -11,8 +11,65 @@ const router = express.Router();
 //  @route: POST /api/auth
 //  @desc: Login User
 //  @access: Public
-router.route("/").post((req, res) => {
-  res.send("testing auth");
-});
+router
+  .route("/")
+  .post(
+    [
+      check("email", "Please include a valid email").isEmail(),
+      check("password", "Password required").not().isEmpty(),
+    ],
+    async (req, res) => {
+      // Check req body for errors
+      const errors = validationResult(req);
+
+      // If errors, respond to FE
+      if (!errors.isEmpty())
+        return res.status(400).json({ errors: errors.array() });
+
+      const { email, password } = req.body;
+
+      try {
+        // Find user by email
+        let user = await User.findOne({ email });
+
+        // If no user, res with error
+        if (!user)
+          return res
+            .status(400)
+            .json({ errors: [{ msg: "Invalid Credentials" }] });
+
+        // COmpare password
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        // If no match return with error
+        if (!isMatch)
+          return res
+            .status(400)
+            .json({ errors: [{ msg: "Invalid Credentials" }] });
+
+        // Create payload for jwt
+        const payload = {
+          user: {
+            id: user._id,
+          },
+        };
+
+        // Sign and send JWT in res
+        jwt.sign(
+          payload,
+          process.env.jwtSecret,
+          { expiresIn: "3h" },
+          (err, token) => {
+            if (err) throw err;
+
+            res.json({ token });
+          },
+        );
+      } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ errors: [{ msg: err.message }] });
+      }
+    },
+  );
 
 export default router;
