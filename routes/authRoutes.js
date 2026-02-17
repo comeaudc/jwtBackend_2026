@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { check, validationResult } from "express-validator";
+import auth from "../middlewares/basicAuth.js";
 dotenv.config();
 
 const router = express.Router();
@@ -70,6 +71,13 @@ router
         res.status(500).json({ errors: [{ msg: err.message }] });
       }
     },
-  );
+  )
+  //  @route: GET /api/auth
+  //  @desc: GET User information
+  //  @access: Private Route
+  .get(auth, async (req, res) => {
+    const user = await User.findById(req.user.id).select("-password");
+    res.json(user);
+  });
 
 export default router;
