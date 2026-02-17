@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { check, validationResult } from "express-validator";
 import auth from "../middlewares/basicAuth.js";
+import adminAuth from "../middlewares/adminAuth.js";
 dotenv.config();
 
 const router = express.Router();
@@ -74,10 +75,17 @@ router
   )
   //  @route: GET /api/auth
   //  @desc: GET User information
-  //  @access: Private Route
+  //  @access: Private 
   .get(auth, async (req, res) => {
     const user = await User.findById(req.user.id).select("-password");
     res.json(user);
   });
+
+//  @route: GET /api/auth/admin
+//  @desc: GET Admin information
+//  @access: Admin 
+router.route("/admin").get(auth, adminAuth, async (req, res) => {
+  res.send("You are an admin!!!!");
+});
 
 export default router;
